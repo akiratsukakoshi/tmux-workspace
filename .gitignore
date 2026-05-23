@@ -1,0 +1,34 @@
+# backup files
+*.bak
+*.bak.*
+*~
+*.swp
+*.swo
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editor cruft
+.vscode/
+.idea/
+
+# local-only overrides (anything matching *.local.* stays out of the repo,
+# in case future layouts want a personal override file)
+*.local
+*.local.*
+local.*
+
+# claude-parallel: per-machine profile files containing personal worktree paths
+layouts/*/profiles/*.local.sh
+
+# claude-parallel: Claude Code settings installed into the *root* of this repo
+# itself, in case someone makes this repo a Claude target (per-worktree files
+# are tracked by their own repos, but this repo shouldn't ship its own hooks).
+/.claude/settings.json
+
+# environment files
+.env
+.env.*
+!.env.example
