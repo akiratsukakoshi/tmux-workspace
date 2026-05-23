@@ -208,6 +208,43 @@ tmux kill-session -t claude-parallel
 
 セッションは PC を切るまで生き続けるので、普段は `attach` ⇄ `detach` で十分。
 
+### よく使うシナリオ別の動き
+
+| 状況 | やること |
+|---|---|
+| 初回 / プロファイル新規 | `start.sh <profile>` → `tmux attach -t claude-parallel` |
+| ターミナル閉じた / detach した後の復帰 | `tmux attach -t claude-parallel` (start.sh は不要) |
+| PC 再起動の後 | `tmux ls` で no server → `start.sh <profile>` → `tmux attach -t claude-parallel` |
+| プロファイル変更したい | 一度 `kill-session` してから新プロファイルで `start.sh` |
+
+### 一発化したい（推奨）
+
+毎回これらを判断するのが面倒なら、`~/.bashrc` に関数を仕込むと **どの状況でも `cp4` 一発** で済みます：
+
+```bash
+# ~/.bashrc に追記。your-profile は自分のプロファイル名に置き換え。
+cp4() {
+  local profile="${1:-your-profile}"
+  if tmux has-session -t claude-parallel 2>/dev/null; then
+    tmux attach -t claude-parallel
+  else
+    "$HOME/tmux-workspace/layouts/claude-parallel/start.sh" "$profile" && \
+      tmux attach -t claude-parallel
+  fi
+}
+```
+
+追記後は新しいシェルから自動で読まれます。既に開いているシェルで使いたければ `source ~/.bashrc` を一度実行。
+
+使い方：
+
+```bash
+cp4                 # セッションがあれば attach、無ければ start.sh + attach
+cp4 别のprofile      # 一時的に別プロファイルで起動したい時
+```
+
+関数名は `cp4` 以外でも好みのものに変えてOK（ただし `cp` だけは `cp` (copy) コマンドと被るので避ける）。
+
 ---
 
 ## Windows Terminal を細い帯として配置する

@@ -103,6 +103,38 @@ tmux attach -t claude-parallel
 
 ---
 
+## 日常運用（2回目以降の起動を一発化）
+
+`~/.bashrc` に小さな関数を仕込むと、PC 再起動の有無に関わらず1コマンドで claude-parallel に入れます。
+
+```bash
+# ~/.bashrc に追記 (your-profile はあなたが作ったプロファイル名に置き換え)
+cp4() {
+  local profile="${1:-your-profile}"
+  if tmux has-session -t claude-parallel 2>/dev/null; then
+    tmux attach -t claude-parallel
+  else
+    "$HOME/tmux-workspace/layouts/claude-parallel/start.sh" "$profile" && \
+      tmux attach -t claude-parallel
+  fi
+}
+```
+
+使い方：
+
+```bash
+cp4                       # セッションがあれば attach、無ければ start.sh + attach
+cp4 <別プロファイル名>    # 一時的に別プロファイルで起動したいとき
+```
+
+挙動：
+- セッションが居る（PC再起動後でなく、まだ生きている） → ただ attach するだけ
+- セッションが居ない（PC再起動直後） → `start.sh` で起動してから attach
+
+詳細とトラブルシュートは [docs/SETUP.md](docs/SETUP.md#起動停止再接続) を参照。
+
+---
+
 ## 用意済みレイアウト
 
 | 名前 | 用途 |
