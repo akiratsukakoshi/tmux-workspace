@@ -45,6 +45,7 @@
 ├── layouts/claude-parallel/               4並列モニタリング用レイアウト
 │   ├── start.sh                           プロファイル指定で起動 (`./start.sh <profile>`)
 │   ├── install-hooks.sh                   `<worktree> <1-4>` でフック設置
+│   ├── switch.sh                          `<1-4> [path]` で稼働中に1スロット差し替え (再起動不要)
 │   ├── templates/claude-settings.json.tpl フックの雛形 (SESSION_NUM / PANE_INDEX 置換)
 │   └── profiles/
 │       ├── example.sh                     Git追跡 (テンプレ)
@@ -101,7 +102,8 @@
 → [`agents/skills/initial-setup.md`](agents/skills/initial-setup.md) を読み込み、最初の「環境確認」セクションから実行開始。
 
 ユーザー: 「プロジェクト変えたい」「並列対象を変えたい」
-→ [`agents/skills/add-profile.md`](agents/skills/add-profile.md) を読み込み、新しいプロファイル作成 → `install-hooks.sh` 実行 → 再起動の流れを案内。
+→ 4枠まるごと組み替えるなら [`agents/skills/add-profile.md`](agents/skills/add-profile.md) を読み込み、新しいプロファイル作成 → `install-hooks.sh` 実行 → 再起動の流れを案内。
+→ **下位スロットだけ／1枠だけ** 差し替えるなら、再起動不要の [`switch.sh`](layouts/claude-parallel/switch.sh) を案内（`./switch.sh <1-4> [path]`、path 省略時は `$PWD`）。常駐スロットを落とさずに済む。
 
 ユーザー: 「色が変わらない／挙動おかしい」
 → [`agents/skills/troubleshoot.md`](agents/skills/troubleshoot.md) を読み込み、切り分け手順を順に実行。

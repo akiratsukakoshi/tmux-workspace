@@ -98,6 +98,40 @@ detach は `prefix + d`、再接続は `tmux attach -t claude-parallel`。
 
 ---
 
+## スロットを差し替える（switch.sh）
+
+下位スロットだけ頻繁に別プロジェクトへ切り替えたいとき、`start.sh` でセッションを作り直すと常駐中の上位スロットまで落ちてしまう。`switch.sh` は **セッションを再起動せず1スロットだけ** 別の worktree に貼り替える。
+
+```bash
+./switch.sh <スロット> [worktree_path]
+#   <スロット>        1..4
+#   [worktree_path]  省略時はカレントディレクトリ ($PWD)
+```
+
+例：
+
+```bash
+# 開いているプロジェクトのターミナルから、それを S3 に映す
+cd ~/project-Y && ~/tmux-workspace/layouts/claude-parallel/switch.sh 3
+
+# パス指定で S4 に
+./switch.sh 4 ~/some-other-repo
+```
+
+中でやること：
+
+1. `install-hooks.sh <path> <slot>` を呼び、その worktree のフックを当該スロットに貼り直す（以後その worktree の状態が当該ペインに出る）
+2. ライブのペイン `0.<slot-1>` を新ディレクトリで `respawn-pane`（中の素のシェルは作り直される）＋ タイトルを `S<slot>:<名前>` に更新
+3. そのスロットの状態文字列 `~/.tmux-workspace-status/sN` を消して背景色をリセットし、`[N:-]` のニュートラルに戻す（前のプロジェクトの「✅完了」等が残らないように）
+
+触らなかったスロット（典型的には常駐の上位2つ）はそのまま生き続ける。セッションが起動していなければフックの貼り直しだけ行い、次回 `start.sh` 起動時に反映される。
+
+毎回フルパスを打たずに済むよう `~/.bashrc` に `switch` 関数を仕込んでおくと `switch 3` だけで使える（→ ルートの [README.md](../../README.md#日常運用2回目以降の起動を一発化) 参照）。
+
+> 注: `switch.sh` を叩くたびに対象 worktree へ `.claude/settings.json.bak.<timestamp>` が1つ増える（`install-hooks.sh` の通常動作）。気になれば古い `.bak` は手で間引いてよい。
+
+---
+
 ## フックの動作確認
 
 1. `tmux attach -t claude-parallel` で接続
